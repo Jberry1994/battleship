@@ -16,57 +16,16 @@ namespace BattleShip
     {
         static void Main(string[] args)
         {
-
-
-            CompetitorBoard gameBoard = new CompetitorBoard();
-            List<List<Ship>> shipLists = new List<List<Ship>>();
-            List<Ship> shipsLayout0 = new List<Ship>();
-            List<Ship> shipsLayout1 = new List<Ship>();
-            List<Ship> shipsLayout2 = new List<Ship>();
-            List<Ship> shipsLayout3 = new List<Ship>();
+            int easy = 15;
+            int medium = 25;
+            int hard = 35;
+            CompetitorBoard gameBoard = makeBoard();
+            PlayerBoard playerBoard = new PlayerBoard();
             Ship playerDestroyer = new Ship(7, 10, 8, 10);
             Ship playerBattleship = new Ship(1, 1, 1, 4);
             Ship playerCruiser = new Ship(10, 3, 10, 5);
             Ship playerSubmarine = new Ship(5, 1, 5, 3);
             Ship playerCarrier = new Ship(4, 5, 8, 5);
-
-            shipsLayout0.Add(new Ship(7, 10, 8, 10));
-            shipsLayout0.Add(new Ship(1, 1, 1, 4));
-            shipsLayout0.Add(new Ship(10, 3, 10, 5));
-            shipsLayout0.Add(new Ship(5, 1, 5, 3));
-            shipsLayout0.Add(new Ship(4, 5, 8, 5));
-
-            shipsLayout1.Add(new Ship(2, 1, 3, 1));
-            shipsLayout1.Add(new Ship(2, 3, 6, 3));
-            shipsLayout1.Add(new Ship(9, 4, 9, 6));
-            shipsLayout1.Add(new Ship(3, 5, 3, 6));
-            shipsLayout1.Add(new Ship(5, 6, 5, 9));
-
-            shipsLayout2.Add(new Ship(2, 1, 2, 3));
-            shipsLayout2.Add(new Ship(9, 1, 9, 2));
-            shipsLayout2.Add(new Ship(6, 4, 6, 8));
-            shipsLayout2.Add(new Ship(4, 8, 8, 8));
-            shipsLayout2.Add(new Ship(6, 10, 8, 10));
-
-            shipsLayout3.Add(new Ship(9, 1, 9, 2));
-            shipsLayout3.Add(new Ship(10, 1, 10, 3));
-            shipsLayout3.Add(new Ship(6, 2, 6, 6));
-            shipsLayout3.Add(new Ship(4, 7, 7, 7));
-            shipsLayout3.Add(new Ship(7, 9, 9, 9));
-
-            shipLists.Add(shipsLayout0);
-            shipLists.Add(shipsLayout1);
-            shipLists.Add(shipsLayout2);
-            shipLists.Add(shipsLayout3);
-
-
-
-
-
-
-            PlayerBoard playerBoard = new PlayerBoard();
-
-
             bool exit = false;
 
             while (!exit)
@@ -88,11 +47,7 @@ namespace BattleShip
                         Console.WriteLine("Invalid option, please choose again");
                         break;
                 }//end switch
-                foreach (Ship ship in shipLists[new Random().Next(shipLists.Count)])
-                {
-                    AddShip(gameBoard, ship);
-                }
-                //makeBoard(playerBoard);
+
                 AddShip(playerBoard, playerCarrier);
                 AddShip(playerBoard, playerBattleship);
                 AddShip(playerBoard, playerCruiser);
@@ -101,227 +56,268 @@ namespace BattleShip
 
                 while (!reload && !exit)
                 {
-                    Console.Clear();
-                    Console.WriteLine("Enemy board:");
-                    Console.WriteLine(gameBoard);
-                    Console.WriteLine("\nYour board");
-                    Console.WriteLine(playerBoard);
+                    printBoards(gameBoard, playerBoard);
 
                     Attack(gameBoard);
                     if (WinCheck(gameBoard))
                     {
+                        printBoards(gameBoard, playerBoard);
                         Console.WriteLine("You Win!");
                         Console.ReadLine();
                         exit = true;
                     }
-                    else { enemyCompAttack(gameBoard, playerBoard); }
+                    else {
+                        enemyCompAttack(gameBoard, playerBoard, easy);
+                        if (WinCheck(playerBoard))
+                        {
+                            printBoards(gameBoard, playerBoard);
+                            Console.WriteLine("You Lose!");
+                            Console.ReadLine();
+                            exit = true;
+                        }
+                    }
 
                 }
             }
         }
 
-        static void enemyCompAttack(CompetitorBoard competitorBoard, PlayerBoard playerBoard)
+        //static void enemyCompAttack(CompetitorBoard competitorBoard, PlayerBoard playerBoard)
+        //{
+
+        //    int[] coords = new int[2];
+        //    coords[0] = competitorBoard.LastHitCoords[0];
+        //    coords[1] = competitorBoard.LastHitCoords[1];
+
+        //    if (competitorBoard.HitStreak > 1)
+        //    {
+        //        if (competitorBoard.LastAttackCoords[0] - competitorBoard.savedHit[0] > 0)
+        //        {
+        //            if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
+        //            {
+        //                coords[0] = competitorBoard.LastAttackCoords[0]++;
+        //                coords[1] = competitorBoard.LastAttackCoords[1];
+        //            }
+        //            else
+        //            {
+        //                coords[0] = competitorBoard.savedHit[0]++;
+        //                coords[1] = competitorBoard.savedHit[1];
+        //            }
+        //        }
+        //        else if (competitorBoard.LastAttackCoords[1] - competitorBoard.savedHit[1] > 0)
+        //        {
+        //            if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
+        //            {
+        //                coords[0] = competitorBoard.LastAttackCoords[0];
+        //                coords[1] = competitorBoard.LastAttackCoords[1]++;
+        //            }
+        //            else
+        //            {
+        //                coords[0] = competitorBoard.savedHit[0];
+        //                coords[1] = competitorBoard.savedHit[1]++;
+        //            }
+        //        }
+        //        else if (competitorBoard.LastAttackCoords[0] - competitorBoard.savedHit[0] < 0)
+        //        {
+        //            if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
+        //            {
+        //                coords[0] = competitorBoard.LastAttackCoords[0]--;
+        //                coords[1] = competitorBoard.LastAttackCoords[1];
+        //            }
+        //            else
+        //            {
+        //                coords[0] = competitorBoard.savedHit[0]--;
+        //                coords[1] = competitorBoard.savedHit[1];
+        //            }
+        //        }
+        //        else if (competitorBoard.LastAttackCoords[1] - competitorBoard.savedHit[1] < 0)
+        //        {
+        //            if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
+        //            {
+        //                coords[0] = competitorBoard.LastAttackCoords[0];
+        //                coords[1] = competitorBoard.LastAttackCoords[1]--;
+        //            }
+        //            else
+        //            {
+        //                coords[0] = competitorBoard.savedHit[0];
+        //                coords[1] = competitorBoard.savedHit[1]--;
+        //            }
+        //        }
+
+        //    }
+        //    else if (competitorBoard.IsShipHit)
+        //    {
+        //        int[] stored1 = new int[2];
+        //        int[] stored2 = new int[2];
+        //        int[] stored3 = new int[2];
+        //        int[] stored4 = new int[2];
+        //        competitorBoard.StoredCoords = new List<int[]>();
+        //        if (competitorBoard.LastHitCoords[0] < 10)
+        //        {
+        //            stored1[0] = coords[0] + 1;
+        //            stored1[1] = coords[1];
+        //            competitorBoard.StoredCoords.Add(stored1);
+        //        }
+        //        if (competitorBoard.LastHitCoords[0] > 1)
+        //        {
+        //            stored2[0] = coords[0] - 1;
+        //            stored2[1] = coords[1];
+        //            competitorBoard.StoredCoords.Add(stored2);
+        //        }
+
+        //        if (competitorBoard.LastHitCoords[1] < 10)
+        //        {
+        //            stored3[0] = coords[0];
+        //            stored3[1] = coords[1] + 1;
+        //            competitorBoard.StoredCoords.Add(stored3);
+        //        }
+
+        //        if (competitorBoard.LastHitCoords[1] > 1)
+        //        {
+        //            stored4[0] = coords[0];
+        //            stored4[1] = coords[1] - 1;
+        //            competitorBoard.StoredCoords.Add(stored4);
+        //        }
+
+
+        //        coords = competitorBoard.StoredCoords[new Random().Next(0, competitorBoard.StoredCoords.Count)];
+        //    }
+        //    else if ((!competitorBoard.IsShipHit) && (competitorBoard.StoredCoords != null))
+        //    {
+        //        for (int i = 0; i < competitorBoard.StoredCoords.Count; i++)
+        //        {
+        //            if (competitorBoard.StoredCoords[i] == competitorBoard.LastAttackCoords)
+        //            {
+        //                competitorBoard.StoredCoords.RemoveAt(i);
+        //            }
+        //        }
+        //        if (competitorBoard.StoredCoords.Count != 0)
+        //        {
+        //            coords = competitorBoard.StoredCoords[new Random().Next(0, competitorBoard.StoredCoords.Count)];
+        //        }
+        //        else
+        //        {
+        //            competitorBoard.StoredCoords = null;
+        //            coords[0] = new Random().Next(1, 11);
+        //            System.Threading.Thread.Sleep(35);
+        //            coords[1] = new Random().Next(1, 11);
+        //        }
+        //    }
+
+        //    else
+        //    {
+        //        competitorBoard.StoredCoords = null;
+        //        coords[0] = new Random().Next(1, 11);
+        //        System.Threading.Thread.Sleep(35);
+        //        coords[1] = new Random().Next(1, 11);
+        //    }
+
+        //    if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Ship)
+        //    {
+
+        //        playerBoard.rows[coords[1]][coords[0]] = playerBoard.Hit;
+        //        competitorBoard.HitStreak++;
+        //        competitorBoard.IsShipHit = true;
+        //        competitorBoard.LastHitCoords = coords;
+        //        if (competitorBoard.HitStreak < 2)
+        //        {
+        //            competitorBoard.savedHit = coords;
+        //        }
+        //    }
+
+        //    else
+        //    {
+        //        if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Hit ||
+        //            playerBoard.rows[coords[1]][coords[0]] == playerBoard.Miss)
+        //        {
+        //            coords[0] = new Random().Next(1, 11);
+        //            System.Threading.Thread.Sleep(35);
+        //            coords[1] = new Random().Next(1, 11);
+        //            competitorBoard.HitStreak = 0;
+
+        //            if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Ship)
+        //            {
+
+        //                playerBoard.rows[coords[1]][coords[0]] = playerBoard.Hit;
+        //                competitorBoard.HitStreak++;
+        //                competitorBoard.IsShipHit = true;
+        //                competitorBoard.LastHitCoords = coords;
+        //                if (competitorBoard.HitStreak < 2)
+        //                {
+        //                    competitorBoard.savedHit = coords;
+        //                }
+        //            }
+
+        //            else
+        //            {
+        //                if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Hit ||
+        //                    playerBoard.rows[coords[1]][coords[0]] == playerBoard.Miss)
+        //                {
+        //                    coords[0] = new Random().Next(1, 11);
+        //                    System.Threading.Thread.Sleep(35);
+        //                    coords[1] = new Random().Next(1, 11);
+        //                    competitorBoard.HitStreak = 0;
+
+
+        //                }
+        //                else
+        //                {
+        //                    playerBoard.rows[coords[1]][coords[0]] = playerBoard.Miss;
+        //                    competitorBoard.IsShipHit = false;
+        //                    competitorBoard.HitStreak = 0;
+        //                    competitorBoard.LastAttackCoords = coords;
+        //                }
+        //            }
+
+        //        }
+        //        else
+        //        {
+        //            playerBoard.rows[coords[1]][coords[0]] = playerBoard.Miss;
+        //            competitorBoard.IsShipHit = false;
+        //            competitorBoard.HitStreak = 0;
+        //            competitorBoard.LastAttackCoords = coords;
+        //        }
+        //    }
+
+        //}
+
+        static void enemyCompAttack(CompetitorBoard competitorBoard, PlayerBoard playerBoard, int difficulty)
         {
-
-
-
             int[] coords = new int[2];
-            coords[0] = competitorBoard.LastHitCoords[0];
-            coords[1] = competitorBoard.LastHitCoords[1];
-
-
-            //coords[0] = new Random().Next(1, 11);
-            //System.Threading.Thread.Sleep(35);
-            //coords[1] = new Random().Next(1, 11);
-
-            if (competitorBoard.HitStreak > 1)
+            if (new Random().Next(101) < difficulty)
             {
-                if (competitorBoard.LastAttackCoords[0] - competitorBoard.savedHit[0] > 0)
+                for (int i = 0; i < playerBoard.rows.Length; i++)
                 {
-                    if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
+                    for (int j = 0; j < playerBoard.rows.Length; j++)
                     {
-                        coords[0] = competitorBoard.LastAttackCoords[0]++;
-                        coords[1] = competitorBoard.LastAttackCoords[1];
+                        if (playerBoard.rows[i][j] == playerBoard.Ship)
+                        {
+                            coords[0] = i;
+                            coords[1] = j;
+                            i += 100;
+                            j += 100;
+                        }
                     }
-                    else
-                    {
-                        coords[0] = competitorBoard.savedHit[0]++;
-                        coords[1] = competitorBoard.savedHit[1];
-                    }
-                }
-                else if (competitorBoard.LastAttackCoords[1] - competitorBoard.savedHit[1] > 0)
-                {
-                    if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
-                    {
-                        coords[0] = competitorBoard.LastAttackCoords[0];
-                        coords[1] = competitorBoard.LastAttackCoords[1]++;
-                    }
-                    else
-                    {
-                        coords[0] = competitorBoard.savedHit[0];
-                        coords[1] = competitorBoard.savedHit[1]++;
-                    }
-                }
-                else if (competitorBoard.LastAttackCoords[0] - competitorBoard.savedHit[0] < 0)
-                {
-                    if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
-                    {
-                        coords[0] = competitorBoard.LastAttackCoords[0]--;
-                        coords[1] = competitorBoard.LastAttackCoords[1];
-                    }
-                    else
-                    {
-                        coords[0] = competitorBoard.savedHit[0]--;
-                        coords[1] = competitorBoard.savedHit[1];
-                    }
-                }
-                else if (competitorBoard.LastAttackCoords[1] - competitorBoard.savedHit[1] < 0)
-                {
-                    if (competitorBoard.LastAttackCoords[0] > competitorBoard.savedHit[0])
-                    {
-                        coords[0] = competitorBoard.LastAttackCoords[0];
-                        coords[1] = competitorBoard.LastAttackCoords[1]--;
-                    }
-                    else
-                    {
-                        coords[0] = competitorBoard.savedHit[0];
-                        coords[1] = competitorBoard.savedHit[1]--;
-                    }
-                }
-
-            }
-            else if (competitorBoard.IsShipHit)
-            {
-                int[] stored1 = new int[2];
-                int[] stored2 = new int[2];
-                int[] stored3 = new int[2];
-                int[] stored4 = new int[2];
-                competitorBoard.StoredCoords = new List<int[]>();
-                if (competitorBoard.LastHitCoords[0] < 10)
-                {
-                    stored1[0] = coords[0] + 1;
-                    stored1[1] = coords[1];
-                    competitorBoard.StoredCoords.Add(stored1);
-                }
-                if (competitorBoard.LastHitCoords[0] > 1)
-                {
-                    stored2[0] = coords[0] - 1;
-                    stored2[1] = coords[1];
-                    competitorBoard.StoredCoords.Add(stored2);
-                }
-
-                if (competitorBoard.LastHitCoords[1] < 10)
-                {
-                    stored3[0] = coords[0];
-                    stored3[1] = coords[1] + 1;
-                    competitorBoard.StoredCoords.Add(stored3);
-                }
-
-                if (competitorBoard.LastHitCoords[1] > 1)
-                {
-                    stored4[0] = coords[0];
-                    stored4[1] = coords[1] - 1;
-                    competitorBoard.StoredCoords.Add(stored4);
-                }
-
-
-                coords = competitorBoard.StoredCoords[new Random().Next(0, competitorBoard.StoredCoords.Count)];
-            }
-            else if ((!competitorBoard.IsShipHit) && (competitorBoard.StoredCoords != null))
-            {
-                for (int i = 0; i < competitorBoard.StoredCoords.Count; i++)
-                {
-                    if (competitorBoard.StoredCoords[i] == competitorBoard.LastAttackCoords)
-                    {
-                        competitorBoard.StoredCoords.RemoveAt(i);
-                    }
-                }
-                if (competitorBoard.StoredCoords.Count != 0)
-                {
-                    coords = competitorBoard.StoredCoords[new Random().Next(0, competitorBoard.StoredCoords.Count)];
-                }
-                else
-                {
-                    competitorBoard.StoredCoords = null;
-                    coords[0] = new Random().Next(1, 11);
-                    System.Threading.Thread.Sleep(35);
-                    coords[1] = new Random().Next(1, 11);
                 }
             }
-
             else
             {
-                competitorBoard.StoredCoords = null;
                 coords[0] = new Random().Next(1, 11);
                 System.Threading.Thread.Sleep(35);
                 coords[1] = new Random().Next(1, 11);
             }
 
-            if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Ship)
+            if (playerBoard.rows[coords[0]][coords[1]] == playerBoard.Ship)
             {
-
-                playerBoard.rows[coords[1]][coords[0]] = playerBoard.Hit;
-                competitorBoard.HitStreak++;
-                competitorBoard.IsShipHit = true;
-                competitorBoard.LastHitCoords = coords;
-                if (competitorBoard.HitStreak < 2)
-                {
-                    competitorBoard.savedHit = coords;
-                }
+                playerBoard.rows[coords[0]][coords[1]] = playerBoard.Hit;
             }
+            else if (playerBoard.rows[coords[0]][coords[1]] == playerBoard.Hit || playerBoard.rows[coords[0]][coords[1]] == playerBoard.Miss)
+            {
+                enemyCompAttack(competitorBoard, playerBoard, difficulty);
 
+            }
             else
             {
-                if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Hit ||
-                    playerBoard.rows[coords[1]][coords[0]] == playerBoard.Miss)
-                {
-                    coords[0] = new Random().Next(1, 11);
-                    System.Threading.Thread.Sleep(35);
-                    coords[1] = new Random().Next(1, 11);
-                    competitorBoard.HitStreak = 0;
-
-                    if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Ship)
-                    {
-
-                        playerBoard.rows[coords[1]][coords[0]] = playerBoard.Hit;
-                        competitorBoard.HitStreak++;
-                        competitorBoard.IsShipHit = true;
-                        competitorBoard.LastHitCoords = coords;
-                        if (competitorBoard.HitStreak < 2)
-                        {
-                            competitorBoard.savedHit = coords;
-                        }
-                    }
-
-                    else
-                    {
-                        if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Hit ||
-                            playerBoard.rows[coords[1]][coords[0]] == playerBoard.Miss)
-                        {
-                            coords[0] = new Random().Next(1, 11);
-                            System.Threading.Thread.Sleep(35);
-                            coords[1] = new Random().Next(1, 11);
-                            competitorBoard.HitStreak = 0;
-
-
-                        }
-                        else
-                        {
-                            playerBoard.rows[coords[1]][coords[0]] = playerBoard.Miss;
-                            competitorBoard.IsShipHit = false;
-                            competitorBoard.HitStreak = 0;
-                            competitorBoard.LastAttackCoords = coords;
-                        }
-                    }
-
-                }
-                else
-                {
-                    playerBoard.rows[coords[1]][coords[0]] = playerBoard.Miss;
-                    competitorBoard.IsShipHit = false;
-                    competitorBoard.HitStreak = 0;
-                    competitorBoard.LastAttackCoords = coords;
-                }
+                playerBoard.rows[coords[0]][coords[1]] = playerBoard.Miss;
             }
 
         }
@@ -345,13 +341,23 @@ namespace BattleShip
             }
             gameboard.rows[newShip.YPos2][newShip.XPos2] = gameboard.Ship;
         }
+
         static int[] getCoord(string text)
         {
             Console.WriteLine(text);
             int[] coords = new int[2];
             coords[0] = 1;
             ConsoleKey userKey = Console.ReadKey().Key;
-            coords[1] = int.Parse(Console.ReadLine());
+            string input = Console.ReadLine();
+            if (input == "1" || input == "2" || input == "3" || input == "4" || input == "5" || input == "6" || input == "7" || input == "8" || input == "9" || input == "10")
+            {
+                coords[1] = int.Parse(input);
+                
+            }
+            else
+            {
+                getCoord("Invalid input");
+            }
             if (coords[1] > 10)
                 coords[1] = 10;
             else if (coords[1] < 1)
@@ -393,6 +399,7 @@ namespace BattleShip
             }
             return coords;
         }
+
         static void Attack(GameBoard gameBoard)
         {
             int[] attackCoords = getCoord("Enter coords to attack: (A2)");
@@ -400,12 +407,19 @@ namespace BattleShip
             {
                 gameBoard.rows[attackCoords[1]][attackCoords[0]] = gameBoard.Hit;
             }
+            else if (gameBoard.rows[attackCoords[1]][attackCoords[0]] == gameBoard.Hit || gameBoard.rows[attackCoords[1]][attackCoords[0]] == gameBoard.Miss)
+            {
+                Console.WriteLine("You have already attacked there, try again!");
+                Attack(gameBoard);
+                
+            }
             else
             {
                 gameBoard.rows[attackCoords[1]][attackCoords[0]] = gameBoard.Miss;
             }
 
         }
+
         static bool WinCheck(GameBoard gameboard)
         {
             int ships = 0;
@@ -422,6 +436,7 @@ namespace BattleShip
             }
             return ships == 0 ? true : false;
         }
+
         static void makeBoard(GameBoard gameBoard)
         {
             string[,] ships = new string[5, 2] { { "Carrier", "5" }, { "Battleship", "4" }, { "Cruiser", "3" }, { "Submarine", "3" }, { "Destroyer", "2" } };
@@ -437,124 +452,62 @@ namespace BattleShip
             Console.WriteLine(gameBoard);
         }
 
-
-        static void AiAttack(CompetitorBoard competitorBoard, PlayerBoard playerBoard)
+        static CompetitorBoard makeBoard()
         {
-            int[] coords = new int[2];
-            coords[0] = competitorBoard.LastHitCoords[0];
-            coords[1] = competitorBoard.LastHitCoords[1];
-            competitorBoard.savedHit = new int[2];
+            CompetitorBoard gameBoard = new CompetitorBoard();
+            List<List<Ship>> shipLists = new List<List<Ship>>();
+            List<Ship> shipsLayout0 = new List<Ship>();
+            List<Ship> shipsLayout1 = new List<Ship>();
+            List<Ship> shipsLayout2 = new List<Ship>();
+            List<Ship> shipsLayout3 = new List<Ship>();
+            
 
-            competitorBoard.savedHit[0] = competitorBoard.LastHitCoords[0];
-            competitorBoard.savedHit[1] = competitorBoard.LastHitCoords[1];
+            shipsLayout0.Add(new Ship(7, 10, 8, 10));
+            shipsLayout0.Add(new Ship(1, 1, 1, 4));
+            shipsLayout0.Add(new Ship(10, 3, 10, 5));
+            shipsLayout0.Add(new Ship(5, 1, 5, 3));
+            shipsLayout0.Add(new Ship(4, 5, 8, 5));
 
+            shipsLayout1.Add(new Ship(2, 1, 3, 1));
+            shipsLayout1.Add(new Ship(2, 3, 6, 3));
+            shipsLayout1.Add(new Ship(9, 4, 9, 6));
+            shipsLayout1.Add(new Ship(3, 5, 3, 6));
+            shipsLayout1.Add(new Ship(5, 6, 5, 9));
 
-            if (competitorBoard.IsShipHit)
+            shipsLayout2.Add(new Ship(2, 1, 2, 3));
+            shipsLayout2.Add(new Ship(9, 1, 9, 2));
+            shipsLayout2.Add(new Ship(6, 4, 6, 8));
+            shipsLayout2.Add(new Ship(4, 8, 8, 8));
+            shipsLayout2.Add(new Ship(6, 10, 8, 10));
 
+            shipsLayout3.Add(new Ship(9, 1, 9, 2));
+            shipsLayout3.Add(new Ship(10, 1, 10, 3));
+            shipsLayout3.Add(new Ship(6, 2, 6, 6));
+            shipsLayout3.Add(new Ship(4, 7, 7, 7));
+            shipsLayout3.Add(new Ship(7, 9, 9, 9));
+
+            shipLists.Add(shipsLayout0);
+            shipLists.Add(shipsLayout1);
+            shipLists.Add(shipsLayout2);
+            shipLists.Add(shipsLayout3);
+
+            foreach (Ship ship in shipLists[new Random().Next(shipLists.Count)])
             {
-                competitorBoard.savedIsHit = true;
-                while (coords[0] == competitorBoard.LastHitCoords[0] && coords[1] == competitorBoard.LastHitCoords[1])
-                {
-
-                    switch (new Random().Next() % 4)
-                    {
-
-                        case 0:
-                            if (competitorBoard.LastHitCoords[0] <= 10)
-                            {
-                                coords[0] = competitorBoard.LastHitCoords[0] + 1;
-                            }
-                            break;
-                        case 1:
-                            if (competitorBoard.LastHitCoords[0] > 1)
-                            {
-                                coords[0] = competitorBoard.LastHitCoords[0] - 1;
-                            }
-                            //x--
-                            break;
-
-                        case 2:
-                            if (competitorBoard.LastHitCoords[1] <= 10)
-                            {
-                                coords[0] = competitorBoard.LastHitCoords[1] + 1;
-                            }
-
-                            //y++
-                            break;
-                        case 3:
-                            if (competitorBoard.LastHitCoords[1] > 1)
-                            {
-                                coords[1] = competitorBoard.LastHitCoords[1] - 1;
-                            }
-
-                            //y--
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            else if (competitorBoard.savedIsHit)
-            {
-                switch (new Random().Next() % 4)
-                {
-
-                    case 0:
-                        if (competitorBoard.LastHitCoords[0] <= 10)
-                        {
-                            coords[0] = competitorBoard.savedHit[0] + 1;
-                        }
-                        break;
-                    case 1:
-                        if (competitorBoard.LastHitCoords[0] > 1)
-                        {
-                            coords[0] = competitorBoard.savedHit[0] - 1;
-                        }
-                        //x--
-                        break;
-
-                    case 2:
-                        if (competitorBoard.LastHitCoords[1] <= 10)
-                        {
-                            coords[0] = competitorBoard.savedHit[1] + 1;
-                        }
-
-                        //y++
-                        break;
-                    case 3:
-                        if (competitorBoard.LastHitCoords[1] > 1)
-                        {
-                            coords[1] = competitorBoard.savedHit[1] - 1;
-                        }
-
-                        //y--
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else
-            {
-                coords[0] = new Random().Next(1, 11);
-                System.Threading.Thread.Sleep(35);
-                coords[1] = new Random().Next(1, 11);
-            }
-            if (playerBoard.rows[coords[1]][coords[0]] == playerBoard.Ship)
-            {
-                playerBoard.rows[coords[1]][coords[0]] = playerBoard.Hit;
-                competitorBoard.HitStreak++;
-                competitorBoard.IsShipHit = true;
-                competitorBoard.LastHitCoords = coords;
+                AddShip(gameBoard, ship);
             }
 
-            else
-            {
-                playerBoard.rows[coords[1]][coords[0]] = playerBoard.Miss;
-                competitorBoard.IsShipHit = false;
-                competitorBoard.HitStreak = 0;
+            return gameBoard;
 
-            }
 
+        }
+
+        static void printBoards(CompetitorBoard competitorBoard, PlayerBoard playerBoard)
+        {
+            Console.Clear();
+            Console.WriteLine("Enemy board:");
+            Console.WriteLine(competitorBoard);
+            Console.WriteLine("\nYour board");
+            Console.WriteLine(playerBoard);
         }
     }
 }
